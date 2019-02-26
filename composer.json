@@ -1,7 +1,7 @@
 {
   "name": "everyday/php-quill-delta",
   "type": "library",
-  "description": "PHP Markdown to Quill Delta parser based on the CommonMark spec",
+  "description": "PHP library with types for representing quill deltas",
   "homepage": "https://github.com/Everyday-AS/php-quill-delta",
   "keywords": [
     "quill",
