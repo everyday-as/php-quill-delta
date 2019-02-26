@@ -79,11 +79,11 @@ class DeltaOp implements \JsonSerializable
     public function setAttribute(string $attribute, $value): void
     {
         if (!isset(self::ATTRIBUTE_TYPES[$attribute])) {
-            throw new \InvalidArgumentException('Unknown attribute: "' . $attribute . '"');
+            throw new \InvalidArgumentException('Unknown attribute: "'.$attribute.'"');
         }
 
         if (self::ATTRIBUTE_TYPES[$attribute] !== ($type = gettype($value))) {
-            throw new \InvalidArgumentException('Unsupported type "' . $type . '" for "' . $attribute . '" attribute');
+            throw new \InvalidArgumentException('Unsupported type "'.$type.'" for "'.$attribute.'" attribute');
         }
 
         $this->attributes[$attribute] = $value;
@@ -137,7 +137,7 @@ class DeltaOp implements \JsonSerializable
     public function setInsert($insert): void
     {
         if (!in_array($type = gettype($insert), ['array', 'string'])) {
-            throw new \InvalidArgumentException('Invalid type "' . $type . '" for insert');
+            throw new \InvalidArgumentException('Invalid type "'.$type.'" for insert');
         }
 
         $this->insert = $insert;
@@ -222,7 +222,7 @@ class DeltaOp implements \JsonSerializable
     public static function embed(string $type, string $data, array $attributes = []): self
     {
         if (!in_array($type, self::EMBED_TYPES)) {
-            throw new \InvalidArgumentException('Unknown embed type: "' . $type . '"');
+            throw new \InvalidArgumentException('Unknown embed type: "'.$type.'"');
         }
 
         return new self([
@@ -241,7 +241,7 @@ class DeltaOp implements \JsonSerializable
     public static function blockModifier(string $type, $value = true): self
     {
         if (!in_array($type, self::BLOCK_MODIFIER_TYPES)) {
-            throw new \InvalidArgumentException('Unknown block modifier type: "' . $type . '"');
+            throw new \InvalidArgumentException('Unknown block modifier type: "'.$type.'"');
         }
 
         return self::text("\n", [$type => $value]);
