@@ -17,6 +17,7 @@ class DeltaOp implements \JsonSerializable
         'strike'     => 'boolean',
         'script'     => 'string',
         'underline'  => 'boolean',
+        'target'     => 'string',
         // Block
         'blockquote' => 'boolean',
         'header'     => 'integer',

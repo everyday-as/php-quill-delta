@@ -16,7 +16,9 @@
       "homepage": "https://everyday.no"
     }
   ],
-  "require": {},
+  "require": {
+    "ext-json": "*"
+  },
   "autoload": {
     "psr-4": {
       "Everyday\\QuillDelta\\": "src/"
