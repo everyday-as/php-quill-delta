@@ -4,48 +4,6 @@ namespace Everyday\QuillDelta;
 
 class DeltaOp implements \JsonSerializable
 {
-    private const ATTRIBUTE_TYPES = [
-        // Inline
-        'background' => 'string',
-        'bold'       => 'boolean',
-        'color'      => 'string',
-        'font'       => 'string',
-        'code'       => 'boolean',
-        'italic'     => 'boolean',
-        'link'       => 'string',
-        'size'       => 'string',
-        'strike'     => 'boolean',
-        'script'     => 'string',
-        'underline'  => 'boolean',
-        'target'     => 'string',
-        // Block
-        'blockquote' => 'boolean',
-        'header'     => 'integer',
-        'indent'     => 'integer',
-        'list'       => 'string',
-        'align'      => 'string',
-        'direction'  => 'string',
-        'code-block' => 'boolean',
-        // Embed attributes
-        'alt'        => 'string',
-        'title'      => 'string',
-    ];
-
-    private const EMBED_TYPES = [
-        'image',
-        'video',
-    ];
-
-    private const BLOCK_MODIFIER_TYPES = [
-        'blockquote',
-        'header',
-        'indent',
-        'list',
-        'align',
-        'direction',
-        'code-block',
-    ];
-
     /**
      * @var array|string
      */
@@ -79,14 +37,6 @@ class DeltaOp implements \JsonSerializable
      */
     public function setAttribute(string $attribute, $value): void
     {
-        if (!isset(self::ATTRIBUTE_TYPES[$attribute])) {
-            throw new \InvalidArgumentException('Unknown attribute: "'.$attribute.'"');
-        }
-
-        if (self::ATTRIBUTE_TYPES[$attribute] !== ($type = gettype($value))) {
-            throw new \InvalidArgumentException('Unsupported type "'.$type.'" for "'.$attribute.'" attribute');
-        }
-
         $this->attributes[$attribute] = $value;
     }
 
@@ -230,10 +180,6 @@ class DeltaOp implements \JsonSerializable
      */
     public static function embed(string $type, string $data, array $attributes = []): self
     {
-        if (!in_array($type, self::EMBED_TYPES)) {
-            throw new \InvalidArgumentException('Unknown embed type: "'.$type.'"');
-        }
-
         return new self([
             $type => $data,
         ], $attributes);
@@ -249,10 +195,6 @@ class DeltaOp implements \JsonSerializable
      */
     public static function blockModifier(string $type, $value = true): self
     {
-        if (!in_array($type, self::BLOCK_MODIFIER_TYPES)) {
-            throw new \InvalidArgumentException('Unknown block modifier type: "'.$type.'"');
-        }
-
         return self::text("\n", [$type => $value]);
     }
 
