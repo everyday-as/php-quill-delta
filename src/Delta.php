@@ -57,16 +57,30 @@ class Delta implements \JsonSerializable
 
         while (isset($this->ops[++$i]) && isset($this->ops[$i + 1])) {
             $op1 = $this->ops[$i];
-            $op1_insert = $op1->getInsert();
 
-            if (!is_string($op1_insert)) {
+            if ($op1->isNoOp()) {
+                $this->ops[$i] = false;
+
                 continue;
             }
 
+            if ($op1->isEmbed()) {
+                continue;
+            }
+
+            $op1_insert = $op1->getInsert();
+
             $op2 = $this->ops[$i + 1];
+
+            if ($op2->isEmbed()) {
+                $i++;
+
+                continue;
+            }
+
             $op2_insert = $op2->getInsert();
 
-            if (!is_string($op2_insert) || (!isset($this->ops[$i + 2]) && $op2_insert === "\n")) {
+            if (!isset($this->ops[$i + 2]) && $op2_insert === "\n") {
                 // Nothing more to optimize.
                 break;
             }

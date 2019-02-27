@@ -168,6 +168,14 @@ class DeltaOp implements \JsonSerializable
     }
 
     /**
+     * @return bool
+     */
+    public function isNoOp(): bool
+    {
+        return empty($this->insert) && empty($this->attributes);
+    }
+
+    /**
      * Compact the op.
      */
     public function compact()
