@@ -34,7 +34,7 @@ class Delta implements \JsonSerializable
     {
         $passes = 0;
 
-        while (self::doCompactionPass()) {
+        while ($this->doCompactionPass()) {
             $passes++;
         }
 
