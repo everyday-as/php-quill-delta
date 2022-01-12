@@ -2,16 +2,17 @@
 
 namespace Everyday\QuillDelta;
 
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
+
 class Delta implements \JsonSerializable
 {
     /**
      * @var DeltaOp[]
      */
-    private $ops;
+    private array $ops;
 
     /**
-     * Delta constructor.
-     *
      * @param DeltaOp[] $ops
      */
     public function __construct(array $ops)
@@ -20,7 +21,7 @@ class Delta implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @return DeltaOp[]
      */
     public function getOps(): array
     {
@@ -47,8 +48,6 @@ class Delta implements \JsonSerializable
 
     /**
      * Perform a single compaction pass.
-     *
-     * @return bool
      */
     public function doCompactionPass(): bool
     {
@@ -105,10 +104,8 @@ class Delta implements \JsonSerializable
 
     /**
      * Convert a delta to plaintext.
-     *
-     * @return string
      */
-    public function toPlaintext(): string
+    public function toPlainText(): string
     {
         $string = '';
 
@@ -121,19 +118,39 @@ class Delta implements \JsonSerializable
         return $string;
     }
 
-    /**
-     * @return array
-     */
-    public function jsonSerialize(): array
+    #[ArrayShape(['ops' => 'mixed'])]
+    public function toArray(): array
     {
-        $ops = $this->ops;
+        $delta = clone $this;
+
+        // A valid delta must be compact
+        $delta->compact();
 
         // A valid delta must **ALWAYS** end in a new line
-        $last = $ops[max(count($ops) - 1, 0)];
+        $last = end($delta->ops);
         if ($last->getInsert() !== "\n") {
-            $ops[] = DeltaOp::text("\n");
+            $delta->ops[] = DeltaOp::text("\n");
         }
 
-        return compact('ops');
+        return ['ops' => array_map(
+            static fn(DeltaOp $op) => $op->toArray(),
+            $delta->ops
+        )];
+    }
+
+    public function toJson(int $options = 0): string
+    {
+        return json_encode($this->jsonSerialize(), $options);
+    }
+
+    #[Pure]
+    public static function build(): Builder
+    {
+        return new Builder;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 }

@@ -2,28 +2,14 @@
 
 namespace Everyday\QuillDelta;
 
+use JetBrains\PhpStorm\ArrayShape;
+
 class DeltaOp implements \JsonSerializable
 {
-    /**
-     * @var array|string
-     */
-    private $insert;
+    private array $attributes = [];
 
-    /**
-     * @var array
-     */
-    private $attributes = [];
-
-    /**
-     * DeltaOp constructor.
-     *
-     * @param array|string $insert
-     * @param array        $attributes
-     */
-    private function __construct($insert, array $attributes = [])
+    public function __construct(private array|string $insert, array $attributes = [])
     {
-        $this->setInsert($insert);
-
         foreach ($attributes as $attribute => $value) {
             if (!empty($value)) {
                 $this->setAttribute($attribute, $value);
@@ -31,20 +17,11 @@ class DeltaOp implements \JsonSerializable
         }
     }
 
-    /**
-     * @param string      $attribute
-     * @param string|bool $value
-     */
-    public function setAttribute(string $attribute, $value): void
+    public function setAttribute(string $attribute, mixed $value): void
     {
         $this->attributes[$attribute] = $value;
     }
 
-    /**
-     * @param string ...$attributes
-     *
-     * @return void
-     */
     public function removeAttributes(string ...$attributes): void
     {
         foreach ($attributes as $attribute) {
@@ -52,75 +29,36 @@ class DeltaOp implements \JsonSerializable
         }
     }
 
-    /**
-     * @param string $attribute
-     *
-     * @return bool
-     */
     public function hasAttribute(string $attribute): bool
     {
         return isset($this->attributes[$attribute]);
     }
 
-    /**
-     * @param string $attribute
-     *
-     * @return string
-     */
-    public function getAttribute(string $attribute)
+    public function getAttribute(string $attribute): mixed
     {
         return $this->attributes[$attribute] ?? null;
     }
 
-    /**
-     * @return array
-     */
     public function getAttributes(): array
     {
         return $this->attributes;
     }
 
-    /**
-     * @param array|string $insert
-     *
-     * @return void
-     */
-    public function setInsert($insert): void
-    {
-        if (!in_array($type = gettype($insert), ['array', 'string'])) {
-            throw new \InvalidArgumentException('Invalid type "'.$type.'" for insert');
-        }
-
-        $this->insert = $insert;
-    }
-
-    /**
-     * @return array|string
-     */
-    public function getInsert()
+    public function getInsert(): array|string
     {
         return $this->insert;
     }
 
-    /**
-     * @return bool
-     */
     public function isBlockModifier(): bool
     {
         return "\n" === $this->insert && !empty($this->attributes);
     }
 
-    /**
-     * @return bool
-     */
     public function isEmbed(): bool
     {
         return is_array($this->insert);
     }
 
-    /**
-     * @return bool
-     */
     public function isNoOp(): bool
     {
         return empty($this->insert) && empty($this->attributes);
@@ -140,10 +78,8 @@ class DeltaOp implements \JsonSerializable
         $this->removeAttributes(...$to_remove);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function jsonSerialize(): array
+    #[ArrayShape(['insert' => 'array|string', 'attributes' => 'array'])]
+    public function toArray(): array
     {
         $op = [
             'insert' => $this->insert,
@@ -156,43 +92,31 @@ class DeltaOp implements \JsonSerializable
         return $op;
     }
 
+    public function toJson(int $options = 0): string
+    {
+        return json_encode($this->jsonSerialize(), $options);
+    }
+
     /**
-     * Construct a new text op.
-     *
-     * @param string $text
-     * @param array  $attributes
-     *
-     * @return DeltaOp
+     * {@inheritdoc}
      */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
     public static function text(string $text, array $attributes = []): self
     {
         return new self($text, $attributes);
     }
 
-    /**
-     * Construct a new embed op.
-     *
-     * @param string $type
-     * @param string $data
-     * @param array  $attributes
-     *
-     * @return DeltaOp
-     */
-    public static function embed(string $type, string $data, array $attributes = []): self
+    public static function embed(string $type, array|string $data, array $attributes = []): self
     {
         return new self([
             $type => $data,
         ], $attributes);
     }
 
-    /**
-     * Construct a new block modifier op.
-     *
-     * @param string $type
-     * @param bool   $value
-     *
-     * @return DeltaOp
-     */
     public static function blockModifier(string $type, $value = true): self
     {
         return self::text("\n", [$type => $value]);
@@ -200,13 +124,8 @@ class DeltaOp implements \JsonSerializable
 
     /**
      * Apply an array of attributes to an array of DeltaOps.
-     *
-     * @param DeltaOp[] $ops
-     * @param array     $attributes
-     *
-     * @return void
      */
-    public static function applyAttributes(array &$ops, array $attributes): void
+    public static function applyAttributes(array $ops, array $attributes): void
     {
         foreach ($ops as $op) {
             foreach ($attributes as $attribute => $value) {
