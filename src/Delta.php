@@ -132,8 +132,8 @@ class Delta implements \JsonSerializable
             $delta->ops[] = DeltaOp::text("\n");
         }
 
-        return ['ops' => array_map(
-            static fn(DeltaOp $op) => $op->toArray(),
+        return ['ops'               => array_map(
+            static fn (DeltaOp $op) => $op->toArray(),
             $delta->ops
         )];
     }
@@ -146,7 +146,7 @@ class Delta implements \JsonSerializable
     #[Pure]
     public static function build(): Builder
     {
-        return new Builder;
+        return new Builder();
     }
 
     public function jsonSerialize(): array
