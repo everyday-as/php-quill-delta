@@ -17,16 +17,9 @@ class DeltaOp implements \JsonSerializable
         }
     }
 
-    public function setAttribute(string $attribute, mixed $value): void
+    public function getAttributes(): array
     {
-        $this->attributes[$attribute] = $value;
-    }
-
-    public function removeAttributes(string ...$attributes): void
-    {
-        foreach ($attributes as $attribute) {
-            unset($this->attributes[$attribute]);
-        }
+        return $this->attributes;
     }
 
     public function hasAttribute(string $attribute): bool
@@ -39,14 +32,26 @@ class DeltaOp implements \JsonSerializable
         return $this->attributes[$attribute] ?? null;
     }
 
-    public function getAttributes(): array
+    public function setAttribute(string $attribute, mixed $value): void
     {
-        return $this->attributes;
+        $this->attributes[$attribute] = $value;
+    }
+
+    public function removeAttributes(string ...$attributes): void
+    {
+        foreach ($attributes as $attribute) {
+            unset($this->attributes[$attribute]);
+        }
     }
 
     public function getInsert(): array|string
     {
         return $this->insert;
+    }
+
+    public function setInsert(array|string $insert): void
+    {
+        $this->insert = $insert;
     }
 
     public function isBlockModifier(): bool
