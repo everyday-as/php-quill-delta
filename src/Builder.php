@@ -35,7 +35,8 @@ class Builder
     #[Pure]
     public function build(): Delta
     {
-        if (end($this->ops)?->getInsert() !== LINE_SEPARATOR) {
+        $last = end($this->ops);
+        if (!$last || $last->getInsert() !== LINE_SEPARATOR) {
             $this->line();
         }
 
