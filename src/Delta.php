@@ -12,6 +12,8 @@ class Delta implements \JsonSerializable
      */
     private array $ops;
 
+    public const LINE_SEPARATOR = "\n";
+
     /**
      * @param DeltaOp[] $ops
      */
@@ -155,12 +157,12 @@ class Delta implements \JsonSerializable
         // A valid delta must **ALWAYS** end in a new line
         $last = end($this->ops);
 
-        if ($last !== false && $last->getInsert() !== LINE_SEPARATOR) {
-            if (str_ends_with($last->getInsert(), LINE_SEPARATOR)) {
+        if ($last !== false && $last->getInsert() !== static::LINE_SEPARATOR) {
+            if (str_ends_with($last->getInsert(), static::LINE_SEPARATOR)) {
                 $last->setInsert(substr($last->getInsert(), 0, -1));
             }
 
-            $this->ops[] = DeltaOp::text(LINE_SEPARATOR);
+            $this->ops[] = DeltaOp::text(static::LINE_SEPARATOR);
         }
     }
 }
