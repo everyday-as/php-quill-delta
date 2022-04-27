@@ -43,6 +43,8 @@ class Delta implements \JsonSerializable
             $op->compact();
         }
 
+        $this->addMissingNewLine();
+
         return $passes;
     }
 
@@ -126,12 +128,6 @@ class Delta implements \JsonSerializable
         // A valid delta must be compact
         $delta->compact();
 
-        // A valid delta must **ALWAYS** end in a new line
-        $last = end($delta->ops);
-        if ($last->getInsert() !== "\n") {
-            $delta->ops[] = DeltaOp::text("\n");
-        }
-
         return ['ops'               => array_map(
             static fn (DeltaOp $op) => $op->toArray(),
             $delta->ops
@@ -152,5 +148,19 @@ class Delta implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    protected function addMissingNewLine(): void
+    {
+        // A valid delta must **ALWAYS** end in a new line
+        $last = end($this->ops);
+
+        if ($last !== false && $last->getInsert() !== LINE_SEPARATOR) {
+            if (str_ends_with($last->getInsert(), LINE_SEPARATOR)) {
+                $last->setInsert(substr($last->getInsert(), 0, -1));
+            }
+
+            $this->ops[] = DeltaOp::text(LINE_SEPARATOR);
+        }
     }
 }
