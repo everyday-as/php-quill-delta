@@ -4,8 +4,6 @@ namespace Everyday\QuillDelta;
 
 use JetBrains\PhpStorm\Pure;
 
-const LINE_SEPARATOR = "\n";
-
 class Builder
 {
     private array $ops = [];
@@ -29,14 +27,14 @@ class Builder
 
     public function line(array $attributes = []): self
     {
-        return $this->push(DeltaOp::text(LINE_SEPARATOR, $attributes));
+        return $this->push(DeltaOp::text(Delta::LINE_SEPARATOR, $attributes));
     }
 
     #[Pure]
     public function build(): Delta
     {
         $last = end($this->ops);
-        if (!$last || $last->getInsert() !== LINE_SEPARATOR) {
+        if (!$last || $last->getInsert() !== Delta::LINE_SEPARATOR) {
             $this->line();
         }
 
