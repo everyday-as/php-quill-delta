@@ -64,10 +64,13 @@ class DeltaOp implements \JsonSerializable
         return is_array($this->insert);
     }
 
-    public function isNoOp(): bool
-    {
-        return empty($this->insert) && empty($this->attributes);
-    }
+
+	//   Identify empty operations without discarding zero-valued text.
+	//   Used by Delta\doCompactionPass.
+	public function isNoOp(): bool {
+		// Only an empty string or empty embed can be a no-op.
+		return ($this->insert==='' || $this->insert===[]) && $this->attributes===[];
+	}
 
     /**
      * Compact the op.
@@ -130,8 +133,11 @@ class DeltaOp implements \JsonSerializable
     /**
      * Apply an array of attributes to an array of DeltaOps.
      */
+	//   Apply nonempty attributes to each supplied operation.
+	//   Used by CodeConverter\convert, EmphasisConverter\convert, LinkConverter\convert.
     public static function applyAttributes(array $ops, array $attributes): void
     {
+		// Retain the supplied operation objects while updating their attributes.
         foreach ($ops as $op) {
             foreach ($attributes as $attribute => $value) {
                 if (!empty($value)) {
